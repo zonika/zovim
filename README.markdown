@@ -8,7 +8,7 @@ fork of [spf13-vim](https://github.com/spf13/spf13-vim).
 
 ## Linux, \*nix, Mac OSX Installation
 
-The easiest way to install zovim is by simply copying and pasting the following line into a terminal. This will install vim404 and backup your existing vim configuration. 
+The easiest way to install zovim is by simply copying and pasting the following line into a terminal. This will install zovim and backup your existing vim configuration. 
 
 *Requires Git 1.7+ and Vim 7.3+*
 
