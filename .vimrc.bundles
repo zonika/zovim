@@ -73,8 +73,7 @@
         Bundle 'ctrlpvim/ctrlp.vim'
         Bundle 'tacahiroy/ctrlp-funky'
         Bundle 'matchit.zip'
-        Bundle 'vim-airline/vim-airline'
-        Bundle 'vim-airline/vim-airline-themes'
+        Plugin 'itchyny/lightline.vim'
         Bundle 'bling/vim-bufferline'
         Bundle 'easymotion/vim-easymotion'
         Bundle 'jistr/vim-nerdtree-tabs'
@@ -86,12 +85,16 @@
         Bundle 'tpope/vim-markdown'
         Bundle 'xuyuanp/nerdtree-git-plugin'
         Bundle 'airblade/vim-gitgutter'
+        Bundle 'dkprice/vim-easygrep'
     " }
 
     " General Programming {
         Bundle 'scrooloose/nerdcommenter'
         Bundle 'luochen1990/rainbow'
         Bundle 'vim-syntastic/syntastic'
+        Plugin 'nathanaelkane/vim-indent-guides'
+        Plugin 'terryma/vim-multiple-cursors'
+        Plugin 'tpope/vim-fugitive'
     " }
 
     " Javascript {
@@ -99,6 +102,7 @@
         Bundle 'pangloss/vim-javascript'
         Bundle 'briancollins/vim-jst'
         Bundle 'heavenshell/vim-jsdoc'
+        Plugin 'moll/vim-node'
     " }
 
     " HTML {
@@ -106,6 +110,8 @@
         Bundle 'hail2u/vim-css3-syntax'
         Bundle 'mattn/emmet-vim'
         Bundle 'mustache/vim-mustache-handlebars'
+        Plugin 'ap/vim-css-color'
+        Plugin 'shmargum/vim-sass-colors'
     " }
 " }
 

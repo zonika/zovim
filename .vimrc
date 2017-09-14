@@ -923,3 +923,21 @@ set autoread
 " jsdoc shit
 let g:jsdoc_enable_es6 = 1
 let g:jsdoc_allow_input_prompt = 1
+
+" indent guides
+let g:indent_guides_enable_on_vim_startup = 1
+
+" lightline config
+let g:lightline = {
+  \ 'colorscheme': 'Dracula',
+  \ 'active': {
+  \   'left': [ [ 'mode', 'paste' ],
+  \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
+  \   'right': [ [ 'lineinfo' ],
+  \              [ 'percent' ],
+  \              [ 'filetype' ] ]
+  \ },
+  \ 'component_function': {
+  \   'gitbranch': 'fugitive#head' }
+  \ }
+
