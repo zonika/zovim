@@ -192,7 +192,7 @@
 
 " Formatting {
 
-    set nowrap                      " Do not wrap long lines
+    set wrap                        " Wrap long lines
     set autoindent                  " Indent at the same level of the previous line
     set shiftwidth=2                " Use indents of 2 spaces
     set expandtab                   " Tabs are spaces, not tabs
@@ -202,6 +202,7 @@
     set splitright                  " Puts new vsplit windows to the right of the current
     set splitbelow                  " Puts new split windows to the bottom of the current
     set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
+    set linebreak
 
     autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql autocmd BufWritePre <buffer> if !exists('g:zovim_keep_trailing_whitespace') | call StripTrailingWhitespace() | endif
     autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
@@ -209,6 +210,8 @@
     autocmd BufNewFile,BufRead *.coffee set filetype=coffee
     autocmd FileType haskell setlocal commentstring=--\ %s
     autocmd FileType haskell,rust setlocal nospell
+    autocmd BufNewFile,BufRead *.ts set filetype=typescript
+    autocmd FileType typescript set syntax=typescript
 " }
 
 " Key (re)Mappings {
@@ -374,6 +377,9 @@
     " fullscreen mode for GVIM and Terminal, need 'wmctrl' in you PATH
     map <silent> <F11> :call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")<CR>
 
+    " ctrl b to open ctrl-p buffer menu
+    map <c-b> :CtrlPBuffer<CR>
+
 " }
 
 " Misc {
@@ -460,236 +466,10 @@
             let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
         endif
     "}
-
-    " neocomplete {
-        let g:acp_enableAtStartup = 0
-        let g:neocomplete#disable_auto_complete=1
-        let g:neocomplete#enable_at_startup = 1
-        let g:neocomplete#enable_smart_case = 1
-        let g:neocomplete#enable_auto_delimiter = 1
-        let g:neocomplete#max_list = 15
-        let g:neocomplete#force_overwrite_completefunc = 1
-        let g:neosnippet#disable_runtime_snippets = { "_": 1, }
-
-
-        " Define dictionary.
-        let g:neocomplete#sources#dictionary#dictionaries = {
-                    \ 'default' : '',
-                    \ 'vimshell' : $HOME.'/.vimshell_hist',
-                    \ 'scheme' : $HOME.'/.gosh_completions'
-                    \ }
-
-        " Define keyword.
-        if !exists('g:neocomplete#keyword_patterns')
-            let g:neocomplete#keyword_patterns = {}
-        endif
-        let g:neocomplete#keyword_patterns['default'] = '\h\w*'
-
-        " Plugin key-mappings {
-            " These two lines conflict with the default digraph mapping of <C-K>
-            if !exists('g:zovim_no_neosnippet_expand')
-                imap <C-k> <Plug>(neosnippet_expand_or_jump)
-                smap <C-k> <Plug>(neosnippet_expand_or_jump)
-            endif
-            if exists('g:zovim_noninvasive_completion')
-                inoremap <CR> <CR>
-                " <ESC> takes you out of insert mode
-                inoremap <expr> <Esc>   pumvisible() ? "\<C-y>\<Esc>" : "\<Esc>"
-                " <CR> accepts first, then sends the <CR>
-                inoremap <expr> <CR>    pumvisible() ? "\<C-y>\<CR>" : "\<CR>"
-                " <Down> and <Up> cycle like <Tab> and <S-Tab>
-                inoremap <expr> <Down>  pumvisible() ? "\<C-n>" : "\<Down>"
-                inoremap <expr> <Up>    pumvisible() ? "\<C-p>" : "\<Up>"
-                " Jump up and down the list
-                inoremap <expr> <C-d>   pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
-                inoremap <expr> <C-u>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
-            else
-                " <C-k> Complete Snippet
-                " <C-k> Jump to next snippet point
-                imap <silent><expr><C-k> neosnippet#expandable() ?
-                            \ "\<Plug>(neosnippet_expand_or_jump)" : (pumvisible() ?
-                            \ "\<C-e>" : "\<Plug>(neosnippet_expand_or_jump)")
-                smap <TAB> <Right><Plug>(neosnippet_jump_or_expand)
-
-                inoremap <expr><C-g> neocomplete#undo_completion()
-                inoremap <expr><C-l> neocomplete#complete_common_string()
-                "inoremap <expr><CR> neocomplete#complete_common_string()
-
-                " <CR>: close popup
-                " <s-CR>: close popup and save indent.
-                inoremap <expr><s-CR> pumvisible() ? neocomplete#smart_close_popup()."\<CR>" : "\<CR>"
-
-                function! CleverCr()
-                    if pumvisible()
-                        if neosnippet#expandable()
-                            let exp = "\<Plug>(neosnippet_expand)"
-                            return exp . neocomplete#smart_close_popup()
-                        else
-                            return neocomplete#smart_close_popup()
-                        endif
-                    else
-                        return "\<CR>"
-                    endif
-                endfunction
-
-                " <CR> close popup and save indent or expand snippet
-                imap <expr> <CR> CleverCr()
-                " <C-h>, <BS>: close popup and delete backword char.
-                inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-                inoremap <expr><C-y> neocomplete#smart_close_popup()
-            endif
-            " <TAB>: completion.
-            inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-            inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<TAB>"
-
-            " Courtesy of Matteo Cavalleri
-
-            function! CleverTab()
-                if pumvisible()
-                    return "\<C-n>"
-                endif
-                let substr = strpart(getline('.'), 0, col('.') - 1)
-                let substr = matchstr(substr, '[^ \t]*$')
-                if strlen(substr) == 0
-                    " nothing to match on empty string
-                    return "\<Tab>"
-                else
-                    " existing text matching
-                    if neosnippet#expandable_or_jumpable()
-                        return "\<Plug>(neosnippet_expand_or_jump)"
-                    else
-                        return neocomplete#start_manual_complete()
-                    endif
-                endif
-            endfunction
-
-            imap <expr> <Tab> CleverTab()
-        " }
-
-        " Enable heavy omni completion.
-        if !exists('g:neocomplete#sources#omni#input_patterns')
-            let g:neocomplete#sources#omni#input_patterns = {}
-        endif
-        let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-        let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
-        let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-        let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-        let g:neocomplete#sources#omni#input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
-    " }
-    " neocomplcache {
-        let g:acp_enableAtStartup = 0
-        let g:neocomplcache_enable_at_startup = 1
-        let g:neocomplcache_enable_camel_case_completion = 1
-        let g:neocomplcache_enable_smart_case = 1
-        let g:neocomplcache_enable_underbar_completion = 1
-        let g:neocomplcache_enable_auto_delimiter = 1
-        let g:neocomplcache_max_list = 15
-        let g:neocomplcache_force_overwrite_completefunc = 1
-
-        " Define dictionary.
-        let g:neocomplcache_dictionary_filetype_lists = {
-                    \ 'default' : '',
-                    \ 'vimshell' : $HOME.'/.vimshell_hist',
-                    \ 'scheme' : $HOME.'/.gosh_completions'
-                    \ }
-
-        " Define keyword.
-        if !exists('g:neocomplcache_keyword_patterns')
-            let g:neocomplcache_keyword_patterns = {}
-        endif
-        let g:neocomplcache_keyword_patterns._ = '\h\w*'
-
-        " Plugin key-mappings {
-            " These two lines conflict with the default digraph mapping of <C-K>
-            imap <C-k> <Plug>(neosnippet_expand_or_jump)
-            smap <C-k> <Plug>(neosnippet_expand_or_jump)
-            if exists('g:zovim_noninvasive_completion')
-                inoremap <CR> <CR>
-                " <ESC> takes you out of insert mode
-                inoremap <expr> <Esc>   pumvisible() ? "\<C-y>\<Esc>" : "\<Esc>"
-                " <CR> accepts first, then sends the <CR>
-                inoremap <expr> <CR>    pumvisible() ? "\<C-y>\<CR>" : "\<CR>"
-                " <Down> and <Up> cycle like <Tab> and <S-Tab>
-                inoremap <expr> <Down>  pumvisible() ? "\<C-n>" : "\<Down>"
-                inoremap <expr> <Up>    pumvisible() ? "\<C-p>" : "\<Up>"
-                " Jump up and down the list
-                inoremap <expr> <C-d>   pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
-                inoremap <expr> <C-u>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
-            else
-                imap <silent><expr><C-k> neosnippet#expandable() ?
-                            \ "\<Plug>(neosnippet_expand_or_jump)" : (pumvisible() ?
-                            \ "\<C-e>" : "\<Plug>(neosnippet_expand_or_jump)")
-                smap <TAB> <Right><Plug>(neosnippet_jump_or_expand)
-
-                inoremap <expr><C-g> neocomplcache#undo_completion()
-                inoremap <expr><C-l> neocomplcache#complete_common_string()
-                "inoremap <expr><CR> neocomplcache#complete_common_string()
-
-                function! CleverCr()
-                    if pumvisible()
-                        if neosnippet#expandable()
-                            let exp = "\<Plug>(neosnippet_expand)"
-                            return exp . neocomplcache#close_popup()
-                        else
-                            return neocomplcache#close_popup()
-                        endif
-                    else
-                        return "\<CR>"
-                    endif
-                endfunction
-
-                " <CR> close popup and save indent or expand snippet
-                imap <expr> <CR> CleverCr()
-
-                " <CR>: close popup
-                " <s-CR>: close popup and save indent.
-                inoremap <expr><s-CR> pumvisible() ? neocomplcache#close_popup()."\<CR>" : "\<CR>"
-                "inoremap <expr><CR> pumvisible() ? neocomplcache#close_popup() : "\<CR>"
-
-                " <C-h>, <BS>: close popup and delete backword char.
-                inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
-                inoremap <expr><C-y> neocomplcache#close_popup()
-            endif
-            " <TAB>: completion.
-            inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-            inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<TAB>"
-        " }
-
-        " Enable omni completion.
-        autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-        autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-        autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-        autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-        autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-        autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
-        autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
-
-        " Enable heavy omni completion.
-        if !exists('g:neocomplcache_omni_patterns')
-            let g:neocomplcache_omni_patterns = {}
-        endif
-        let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-        let g:neocomplcache_omni_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
-        let g:neocomplcache_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-        let g:neocomplcache_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-        let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
-        let g:neocomplcache_omni_patterns.go = '\h\w*\.\?'
-    " }
-    " Normal Vim omni-completion {
-    " To disable omni complete, add the following to your .vimrc.before.local file:
-    "   let g:zovim_no_omni_complete = 1
-        autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-        autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-        autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-        autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-        autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-        autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
-        autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
-    " }
 " }
 
 " GUI Settings {
-    set guifont=Consolas:h18
+    set guifont=Courier:h14
 
     " GVIM- (here instead of .gvimrc)
     if has('gui_running')
@@ -871,7 +651,11 @@
 " Vim Airline Settings
     if isdirectory(expand("~/.vim/bundle/vim-airline/"))
         if !exists('g:airline_theme')
-            let g:airline_theme = 'serene'
+            let g:airline#extensions#tabline#enabled = 1
+            let g:airline#extensions#tabline#formatter = 'unique_tail'
+            let g:airline_section_y = ''
+            let g:airline#extensions#branch#format = 2
+            let g:airline_theme='wombat'
         endif
         if !exists('g:airline_powerline_fonts')
             " Use the default set of separators with a few customizations
@@ -879,6 +663,22 @@
             let g:airline_right_sep='‹' " Slightly fancier than '<'
         endif
     endif
+" }
+
+" Emmet
+  let g:user_emmet_settings = {
+    \  'javascript.jsx' : {
+      \      'extends' : 'jsx',
+      \  },
+    \}
+" }
+
+" Markdown previewer 
+  let vim_markdown_preview_hotkey='<C-m>'
+  let vim_markdown_preview_browser='Google Chrome'
+  let vim_markdown_preview_github=1
+  let vim_markdown_preview_toggle=2
+  let vim_markdown_preview_temp_file=1
 " }
 
 " use fat cursor in normal mode and skinny cursor in insert mode
@@ -911,6 +711,7 @@ let g:syntastic_scss_checkers = ['sass_lint']
 let g:syntastic_sass_checkers = ['sass_lint']
 let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_html_checkers = ['']
+let g:syntastic_xml_checkers = ['']
 
 " reload files
 augroup myvimrc
@@ -926,18 +727,3 @@ let g:jsdoc_allow_input_prompt = 1
 
 " indent guides
 let g:indent_guides_enable_on_vim_startup = 1
-
-" lightline config
-let g:lightline = {
-  \ 'colorscheme': 'Dracula',
-  \ 'active': {
-  \   'left': [ [ 'mode', 'paste' ],
-  \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
-  \   'right': [ [ 'lineinfo' ],
-  \              [ 'percent' ],
-  \              [ 'filetype' ] ]
-  \ },
-  \ 'component_function': {
-  \   'gitbranch': 'fugitive#head' }
-  \ }
-
