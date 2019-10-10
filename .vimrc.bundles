@@ -73,8 +73,6 @@
         Bundle 'ctrlpvim/ctrlp.vim'
         Bundle 'tacahiroy/ctrlp-funky'
         Bundle 'matchit.zip'
-        Plugin 'itchyny/lightline.vim'
-        Bundle 'bling/vim-bufferline'
         Bundle 'easymotion/vim-easymotion'
         Bundle 'jistr/vim-nerdtree-tabs'
         Bundle 'flazz/vim-colorschemes'
@@ -103,15 +101,21 @@
         Bundle 'briancollins/vim-jst'
         Bundle 'heavenshell/vim-jsdoc'
         Plugin 'moll/vim-node'
+        Plugin 'mxw/vim-jsx'
     " }
 
     " HTML {
-        Bundle 'amirh/HTML-AutoCloseTag'
         Bundle 'hail2u/vim-css3-syntax'
         Bundle 'mattn/emmet-vim'
         Bundle 'mustache/vim-mustache-handlebars'
         Plugin 'ap/vim-css-color'
         Plugin 'shmargum/vim-sass-colors'
+    " }
+    
+    " Other dumb shit {
+        Plugin 'vim-airline/vim-airline'
+        Plugin 'vim-airline/vim-airline-themes'
+        Plugin 'JamshedVesuna/vim-markdown-preview'
     " }
 " }
 
